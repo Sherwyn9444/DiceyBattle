@@ -20,6 +20,10 @@ const start = (place = null)=>{
     
 }
 
+const description = ()=>{
+    return `Heal Self for ${stats.value.ability * 5}.`;
+}
+
 defineExpose({start});
 
 </script>
@@ -32,7 +36,7 @@ defineExpose({start});
             <b class="text-2xl">Heal</b>
             <p class="text-lg">
                  <span class="flex items-center mx-2 gap-1">
-                    Heal Self for <b>{{ stats.ability * 5 }} </b>
+                    {{ description() }}
                 </span></p>
         </v-card-text>
     </v-card>

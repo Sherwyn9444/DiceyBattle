@@ -33,5 +33,5 @@ defineExpose({start, activate});
 
 </script>
 <template>
-    <div>Goblin</div>
+    <div></div>
 </template>

@@ -8,8 +8,8 @@ const level = defineModel("level");
 const emits = defineEmits(['end']);
 const activate = () => {
     
-    stats.value.health += 5;
-    stats.value.maxhealth += 5;
+    stats.value.health += 4;
+    stats.value.maxhealth += 4;
     
     emits('end');
 }
@@ -29,7 +29,7 @@ defineExpose({start});
             <b class="text-2xl">Vitality</b>
             <p class="text-lg">
                  <span class="flex items-center mx-2 gap-1">
-                    Gain <b>5</b> Health
+                    Gain <b>4</b> Health
                 </span></p>
         </v-card-text>
     </v-card>

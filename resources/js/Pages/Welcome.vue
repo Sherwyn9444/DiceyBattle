@@ -3,8 +3,12 @@ import { enemies } from '@/Resources/Enemies';
 import { Stats } from '@/Resources/Stats';
 import { Head, Link } from '@inertiajs/vue3';
 import { nextTick, onMounted, ref } from 'vue';
-import * as Mistel from '@/Character/Mistel';
-import * as Upgrade from '@/Character/Upgrade';
+import { markRaw } from 'vue';
+import * as MistelImport from '@/Character/Mistel';
+import * as UpgradeImport from '@/Character/Upgrade';
+
+const Mistel = { default: MistelImport.default.map(markRaw) };
+const Upgrade = { default: UpgradeImport.default.map(markRaw) };
 
 const char_stats = ref({...Stats});
 const enemies_list = ref(enemies);
@@ -15,27 +19,31 @@ const choices = ref([0,0,0]);
 const upgrade_choices = ref([0,0,0]);
 
 const character = ref(null);
-const cards = ref([]);
+const cards = shallowRef([]);
 const turns = ref(0);
 const upgrade_number = ref(0);
 const on_upgrade = ref(false);
+const on_animation = ref(false);
 const show_cards = ref(true);
 
-const card_components_1 = ref(null);
-const card_components_2 = ref(null);
-const card_components_3 = ref(null);
+import { shallowRef } from 'vue';
 
-const upgrade_components_1 = ref(null);
-const upgrade_components_2 = ref(null);
-const upgrade_components_3 = ref(null);
-const enemy_cards = ref(null);
+const card_components_1 = shallowRef(null);
+const card_components_2 = shallowRef(null);
+const card_components_3 = shallowRef(null);
+
+const upgrade_components_1 = shallowRef(null);
+const upgrade_components_2 = shallowRef(null);
+const upgrade_components_3 = shallowRef(null);
+const enemy_cards = shallowRef(null);
 
 const enemy_died = (enemy)=>{
     
 }
 
-const choose_upgrade = ()=>{
+const choose_upgrade = async ()=>{
     upgrade_number.value += 1;
+    
     if(upgrade_number.value >= 3){
         on_upgrade.value = false;
         upgrade_number.value = 0;
@@ -46,30 +54,53 @@ const choose_upgrade = ()=>{
     upgrade_choices.value[0] = Math.floor(Math.random() * available);
     upgrade_choices.value[1] = Math.floor(Math.random() * available);
     upgrade_choices.value[2] = Math.floor(Math.random() * available);
+
+    await nextTick();
+
+    if(upgrade_components_1.value) upgrade_components_1.value.start();
+    if(upgrade_components_2.value) upgrade_components_2.value.start();
+    if(upgrade_components_3.value) upgrade_components_3.value.start();
+    
 }
 
 const end_turn = async ()=>{
-    if(on_upgrade.value){
-        choose_upgrade();
-        return;
-    }
 
+    
     if(enemy.value.health <= 0){
         level.value += 1;
         turns.value = 0;
         enemy.value = enemies_list.value[level.value];      
         upgrade_number.value == 0;
-        on_upgrade.value = true;  
+        on_upgrade.value = true;
+        on_animation.value = true;
+        setTimeout(()=>{
+            on_animation.value = false;
+        }, 1000);
     }
+
+    if(on_upgrade.value){
+        choose_upgrade();
+        return;
+    }
+
     
     turns.value += 1;
 
     await nextTick()
+
     let available = cards.value;
     choices.value[0] = Math.floor(Math.random() * available.length);
     choices.value[1] = Math.floor(Math.random() * available.length);
     choices.value[2] = Math.floor(Math.random() * available.length);
 
+    await nextTick();
+
+    if(card_components_1.value) card_components_1.value.start();
+    if(card_components_2.value) card_components_2.value.start();
+    if(card_components_3.value) card_components_3.value.start();
+
+    await nextTick();
+    
     if(char_stats.value.health <= (char_stats.value.maxhealth + char_stats.value.healthregen)){
         char_stats.value.health += char_stats.value.healthregen;
         if(char_stats.value.health >= char_stats.value.maxhealth){
@@ -108,13 +139,12 @@ const end_turn = async ()=>{
 }
 
 onMounted(()=>{
-    cards.value.push(Mistel.default[0]);
-    cards.value.push(Mistel.default[0]);
-    cards.value.push(Mistel.default[0]);
+    cards.value = [Mistel.default[0], Mistel.default[0], Mistel.default[0]];
     enemy.value = enemies_list.value[level.value];    
     // console.log(enemy.value);
     end_turn();
 });
+
 </script>
 
 <template>
@@ -139,34 +169,63 @@ onMounted(()=>{
         </div>
     </div>
 
-    <div class="flex justify-center gap-5 items-center absolute w-screen h-screen left-0 top-0" style="height: calc(100vh - 100px);" v-if="show_cards && !on_upgrade">
-        <div class="flex justify-center gap-5  p-5 rounded" style="background-color: lightblue;">
-            <component :is="Upgrade.default[upgrade_choices[0]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="card_components_1"/>
-            <component :is="Upgrade.default[upgrade_choices[1]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="card_components_2"/>
-            <component :is="Upgrade.default[upgrade_choices[2]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="card_components_3"/>
+    <div v-if="!on_animation">
+        <div class="flex justify-center gap-5 items-center absolute w-screen h-screen left-0 top-0" style="height: calc(100vh - 100px);" v-if="on_upgrade">
+            <div class="flex justify-center gap-5  p-5 rounded" style="background-color: lightgreen;">
+                <component :is="Upgrade.default[upgrade_choices[0]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" :cards="cards" @end="end_turn" ref="upgrade_components_1"/>
+                <component :is="Upgrade.default[upgrade_choices[1]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" :cards="cards" @end="end_turn" ref="upgrade_components_2"/>
+                <component :is="Upgrade.default[upgrade_choices[2]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" :cards="cards" @end="end_turn" ref="upgrade_components_3"/>
+            </div>
         </div>
-    </div>
 
-    <div class="flex justify-center gap-5 items-center absolute w-screen h-screen left-0 top-0" style="height: calc(100vh - 100px);" v-if="on_upgrade">
-        <div class="flex justify-center gap-5  p-5 rounded" style="background-color: lightblue;">
-            <component :is="cards[choices[0]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="upgrade_components_1"/>
-            <component :is="cards[choices[1]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="upgrade_components_2"/>
-            <component :is="cards[choices[2]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="upgrade_components_3"/>
+        <div class="flex justify-center gap-5 items-center absolute w-screen h-screen left-0 top-0 " style="height: calc(100vh - 100px);" v-if="show_cards && !on_upgrade">
+            <div class="flex justify-center gap-5  p-5 rounded" style="background-color: lightblue;">
+                <component :is="cards[choices[0]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="card_components_1"/>
+                <component :is="cards[choices[1]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="card_components_2"/>
+                <component :is="cards[choices[2]]" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" @play="end_turn" ref="card_components_3"/>
+            </div>
         </div>
-    </div>
-    
-    
-    <div class="absolute bottom-0 left-0 m-2">
-        <v-card @click="show_cards = !show_cards">
-            <v-card-text>Show Cards</v-card-text>
-        </v-card>
+        
+        
+        <div class="absolute bottom-0 left-0 m-2">
+            <v-card @click="show_cards = !show_cards">
+                <v-card-text>Show Cards</v-card-text>
+            </v-card>
+        </div>
+
+        <div class="absolute bottom-0 right-0 m-2">
+            <v-card>
+                <v-card-text>Turn : {{ turns }}</v-card-text>
+            </v-card>
+        </div>
+
+        <component :is="enemy?.pattern" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" ref="enemy_cards"/>
     </div>
 
-    <div class="absolute bottom-0 right-0 m-2">
-        <v-card>
-            <v-card-text>Turn : {{ turns }}</v-card-text>
-        </v-card>
-    </div>
-
-    <component :is="enemy?.pattern" :level="level" :enemy="enemy" :stats="char_stats" :resources="resources" ref="enemy_cards"/>
+    <transition name="fade">
+        <div v-if="on_animation" class="absolute w-screen h-screen left-0 top-0 bg-black bg-opacity-50 z-50">  
+            <transition
+                enter-active-class="transition duration-700 ease-out"
+                enter-from-class="opacity-0 scale-50"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition duration-500 ease-in"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-50"
+            >
+            <div v-if="on_animation"
+                class="bg-white rounded p-5 text-3xl font-bold absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                Level {{ level + 1 }}
+            </div>
+            </transition>
+        </div>
+    </transition>
 </template>
+
+<style scoped>
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity 0.3s;
+    }
+    .fade-enter-from, .fade-leave-to {
+        opacity: 0;
+    }
+</style>

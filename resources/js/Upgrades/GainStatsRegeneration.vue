@@ -27,10 +27,9 @@ defineExpose({start});
         
         <v-card-text class="text-center items-center flex h-full flex-col gap-5">
             <b class="text-2xl">Rejuvenation</b>
-            <p class="text-lg">
-                 <span class="flex items-center mx-2 gap-1">
-                    Gain <b>0.5</b> Health Regen. Gain <b>0.25</b> Mana Regen. 
-                </span></p>
+            <p class="text-lg"> 
+                Gain <b>0.5</b> Health Regen.<br> Gain <b>0.25</b> Mana Regen. 
+            </p>
         </v-card-text>
     </v-card>
 </template>

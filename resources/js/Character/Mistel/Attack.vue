@@ -17,7 +17,11 @@ const start = (place = null)=>{
     
 }
 
-defineExpose({start});
+const description = ()=>{
+    return `Deal ${stats.value.mindamage} - ${stats.value.maxdamage} damage to the enemy.`;
+}
+
+defineExpose({start, description});
 
 </script>
 <template>
@@ -29,7 +33,7 @@ defineExpose({start});
             <b class="text-2xl">Attack</b>
             <p class="text-lg">
                  <span class="flex items-center mx-2 gap-1">
-                    Damage enemy for <b>{{ stats.mindamage }} - {{ stats.maxdamage }}</b>
+                    {{ description() }}
                 </span></p>
         </v-card-text>
     </v-card>

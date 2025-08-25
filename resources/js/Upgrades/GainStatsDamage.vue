@@ -8,8 +8,8 @@ const level = defineModel("level");
 const emits = defineEmits(['end']);
 const activate = () => {
     
-    stats.value.mindamage += 1;
-    stats.value.maxdamage += 5;
+    stats.value.mindamage += 0.5;
+    stats.value.maxdamage += 0.5;
     
     emits('end');
 }
@@ -29,7 +29,7 @@ defineExpose({start});
             <b class="text-2xl">Power</b>
             <p class="text-lg">
                  <span class="flex items-center mx-2 gap-1">
-                    Gain <b>1</b> Damage
+                    Gain <b>0.5</b> Damage
                 </span></p>
         </v-card-text>
     </v-card>
