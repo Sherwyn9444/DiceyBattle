@@ -1,5 +1,12 @@
+import DarkMagePattern from "@/Enemies/DarkMagePattern.vue";
+import DragonPattern from "@/Enemies/DragonPattern.vue";
+import GiantSpiderPattern from "@/Enemies/GiantSpiderPattern.vue";
 import GoblinPattern from "@/Enemies/GoblinPattern.vue";
+import NecromancerPattern from "@/Enemies/NecromancerPattern.vue";
+import OrcPattern from "@/Enemies/OrcPattern.vue";
 import SkeletonPattern from "@/Enemies/SkeletonPattern.vue";
+import TrollPattern from "@/Enemies/TrollPattern.vue";
+import WraithPattern from "@/Enemies/WraithPattern.vue";
 
 export const enemies = [
     {
@@ -73,7 +80,7 @@ export const enemies = [
         color: "",
         type: "humanoid",
         passives: [],
-        pattern: null,
+        pattern: OrcPattern,
         attributes: {
             strength: 8,
             agility: 3,
@@ -99,7 +106,7 @@ export const enemies = [
         color: "",
         type: "humanoid",
         passives: [],
-        pattern: null,
+        pattern: DarkMagePattern,
         attributes: {
             strength: 2,
             agility: 4,
@@ -125,7 +132,7 @@ export const enemies = [
         color: "",
         type: "beast",
         passives: [],
-        pattern: null,
+        pattern: GiantSpiderPattern,
         attributes: {
             strength: 6,
             agility: 8,
@@ -151,7 +158,7 @@ export const enemies = [
         color: "",
         type: "beast",
         passives: [],
-        pattern: null,
+        pattern: TrollPattern,
         attributes: {
             strength: 10,
             agility: 2,
@@ -177,7 +184,7 @@ export const enemies = [
         color: "",
         type: "undead",
         passives: [],
-        pattern: null,
+        pattern: WraithPattern,
         attributes: {
             strength: 4,
             agility: 9,
@@ -229,7 +236,7 @@ export const enemies = [
         color: "",
         type: "undead",
         passives: [],
-        pattern: null,
+        pattern: NecromancerPattern,
         attributes: {
             strength: 3,
             agility: 5,
@@ -255,7 +262,7 @@ export const enemies = [
         color: "",
         type: "dragon",
         passives: [],
-        pattern: null,
+        pattern: DragonPattern,
         attributes: {
             strength: 15,
             agility: 6,

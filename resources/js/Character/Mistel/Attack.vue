@@ -4,11 +4,13 @@ const resources = defineModel("resources");
 const stats = defineModel("stats");
 const enemy = defineModel("enemy");
 const level = defineModel("level");
-
+const animation = defineModel("animation");
+const duration = defineModel("duration");
 const emits = defineEmits(['play']);
 const activate = () => {
     let damage = (Math.floor(Math.random() * stats.value.maxdamage) + stats.value.mindamage);
-    
+    animation.value = "/Images/Animations/Mistel/purple_slash_1.gif";
+    duration.value = 0.8;
     enemy.value.health -= damage;
     
     emits('play');

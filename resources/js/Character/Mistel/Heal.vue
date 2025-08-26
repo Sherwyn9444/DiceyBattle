@@ -4,7 +4,7 @@ const resources = defineModel("resources");
 const stats = defineModel("stats");
 const enemy = defineModel("enemy");
 const level = defineModel("level");
-
+const animation = defineModel("animation");
 const emits = defineEmits(['play']);
 const activate = () => {
     let damage = (Math.floor(Math.random() * stats.value.maxdamage) + stats.value.mindamage);
