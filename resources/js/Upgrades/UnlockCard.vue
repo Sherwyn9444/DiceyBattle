@@ -16,10 +16,8 @@ const activate = () => {
     emits('end');
 }
 const start = (place = null)=>{
-    console.log("yay");
     let available = Math.floor(Math.random() * Mistel.length);
     card.value = Mistel[available];
-    console.log(card.value);
     
 }
 

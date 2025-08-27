@@ -10,5 +10,20 @@ export const Stats = {
     ability: 1,
     speed: 1,
     output: 1,
+    passives: [],
+    buffs: [],
+    debuffs: [],
 
+    bonus: {
+        health: 100,
+        maxhealth: 100,
+        mana: 5,
+        maxmana: 5,
+        healthregen: 1,
+        manaregen: 1,
+        mindamage: 1,
+        maxdamage: 6,
+        ability: 1,
+        speed: 1,
+    },
 }

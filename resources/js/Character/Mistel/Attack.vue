@@ -8,11 +8,33 @@ const animation = defineModel("animation");
 const duration = defineModel("duration");
 const emits = defineEmits(['play']);
 const activate = () => {
-    let damage = (Math.floor(Math.random() * stats.value.maxdamage) + stats.value.mindamage);
+    let damage = ((Math.random() * stats.value.maxdamage) + stats.value.mindamage);
     animation.value = "/Images/Animations/Mistel/purple_slash_1.gif";
     duration.value = 0.8;
     enemy.value.health -= damage;
     
+    stats.value.buffs.forEach(buff => {
+        if(buff.type == 'attack'){
+            buff.duration -= 1;
+            if(buff.duration <= 0){
+                stats.value.buffs = stats.value.buffs.filter(b => b !== buff);
+            }else{
+                buff.effect(stats.value, enemy.value);
+            }
+        }
+    });
+
+    stats.value.debuffs.forEach(debuff => {
+        if(debuff.type == 'attack'){
+            debuff.duration -= 1;
+            if(debuff.duration <= 0){
+                stats.value.debuffs = stats.value.debuffs.filter(b => b !== debuff);
+            }else{
+                debuff.effect(stats.value, enemy.value);
+            }
+        }
+    });
+
     emits('play');
 }
 const start = (place = null)=>{

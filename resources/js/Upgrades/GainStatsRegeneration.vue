@@ -8,8 +8,8 @@ const level = defineModel("level");
 const emits = defineEmits(['end']);
 const activate = () => {
     
-    stats.value.healthregen += 0.5;
-    stats.value.manaregen += 0.25;
+    stats.value.healthregen += 0.40;
+    stats.value.manaregen += 0.15;
     
     emits('end');
 }
@@ -28,7 +28,7 @@ defineExpose({start});
         <v-card-text class="text-center items-center flex h-full flex-col gap-5">
             <b class="text-2xl">Rejuvenation</b>
             <p class="text-lg"> 
-                Gain <b>0.5</b> Health Regen.<br> Gain <b>0.25</b> Mana Regen. 
+                Gain <b>0.40</b> Health Regen.<br> Gain <b>0.15</b> Mana Regen. 
             </p>
         </v-card-text>
     </v-card>

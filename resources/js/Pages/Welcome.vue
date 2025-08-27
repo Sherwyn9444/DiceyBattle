@@ -60,7 +60,7 @@ const choose_upgrade = async ()=>{
 
     on_action.value = false;
 
-    if(upgrade_number.value >= 3){
+    if(upgrade_number.value >= 4){
         on_upgrade.value = false;
         upgrade_number.value = 0;
         end_turn();
@@ -83,14 +83,14 @@ watch(
     () => enemy.value?.health,
     (newVal, oldVal) => {
         if (newVal > oldVal) {
-            enemy_poptext.value = "+" + (newVal - oldVal);
+            enemy_poptext.value = "+" +  Number(newVal - oldVal).toFixed(2);
             enemy_popup.value = true;
             enemy_popcolor.value = "green";
             setTimeout(() => {
                 enemy_popup.value = false;
             }, 1000);
         }else if(newVal < oldVal){
-            enemy_poptext.value = "" + (newVal - oldVal);
+            enemy_poptext.value = "" +  Number(newVal - oldVal).toFixed(2);
             enemy_popup.value = true;
             enemy_popcolor.value = "red";
             setTimeout(() => {
@@ -105,14 +105,14 @@ watch(
     () => char_stats.value.health,
     (newVal, oldVal) => {
         if (newVal > oldVal) {
-            char_poptext.value = "+" + (newVal - oldVal);
+            char_poptext.value = "+" +  Number(newVal - oldVal).toFixed(2);
             char_popup.value = true;
             char_popcolor.value = "green";
             setTimeout(() => {
                 char_popup.value = false;
             }, 1000);
         }else if(newVal < oldVal){
-            char_poptext.value = "" + (newVal - oldVal);
+            char_poptext.value = "" +  Number(newVal - oldVal).toFixed(2);
             char_popup.value = true;
             char_popcolor.value = "red";
             setTimeout(() => {
@@ -127,7 +127,7 @@ const end_turn = async ()=>{
     
     if(char_animation.value){
         on_action.value = true;
-        setTimeout(()=>{on_action.value = false;char_animation.value = null;}, char_duration.value * 1000)
+        setTimeout(()=>{on_action.value = false;char_animation.value = null;}, char_duration.value * 1000);
     }
     
     if(enemy.value.health <= 0){
@@ -151,13 +151,18 @@ const end_turn = async ()=>{
     }
 
     
-    if(turns.value <= 1){
-
-    }else{
-        enemy_cards.value.activate();
-    }
+    
 
     show_cards.value = false;   
+
+    if(turns.value > 1){
+        setTimeout(()=>{
+            enemy_cards.value.activate(); 
+        }, 1000);
+               
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
     await new Promise(resolve => setTimeout(resolve, 1000));
     show_cards.value = true;
     
@@ -191,6 +196,36 @@ const end_turn = async ()=>{
             char_stats.value.mana = char_stats.value.maxmana;
         }
     }
+
+    char_stats.value.passives.forEach(passive => {
+        if(passive.type == 'end_turn'){
+            passive.effect(char_stats.value, enemy.value);
+        }
+    });
+
+    char_stats.value.buffs.forEach(buff => {
+        if(buff.type == 'end_turn'){
+            buff.duration -= 1;
+            if(buff.duration <= 0){
+                buff.end(char_stats.value, enemy.value);
+                char_stats.value.buffs = char_stats.value.buffs.filter(b => b !== buff);
+            }else{
+                buff.effect(char_stats.value, enemy.value);
+            }
+        }
+    });
+
+    char_stats.value.debuffs.forEach(buff => {
+        if(buff.type == 'end_turn'){
+            buff.duration -= 1;
+            if(buff.duration <= 0){
+                buff.end(char_stats.value, enemy.value);
+                char_stats.value.debuffs = char_stats.value.debuffs.filter(b => b !== buff);
+            }else{
+                buff.effect(char_stats.value, enemy.value);
+            }
+        }
+    });
 
     if(turns.value <= 1){
 
@@ -229,10 +264,12 @@ onMounted(()=>{
     <div class="flex gap-2 justify-between">
         <div class="flex flex-col w-full">
             <div class="text-lg font-bold m-2">Character</div>
-            <div class="flex m-2"><img src="/Images/Icons/Health.png" class="w-[25px] h-[25px] me-1"/> {{ char_stats.health }} / {{ char_stats.maxhealth }} (+{{ char_stats.healthregen }})
+            <div class="flex m-2">
+                <img src="/Images/Icons/Health.png" class="w-[25px] h-[25px] me-1"/>
+                {{ Number(char_stats.health).toFixed(2) }} / {{ Number(char_stats.maxhealth).toFixed(2) }} (+{{ Number(char_stats.healthregen).toFixed(2) }})
                 <ValuePopGreen v-model:show="char_popup" v-model:value="char_poptext" v-model:color="char_popcolor"/>
             </div>
-            <div class="flex m-2"><img src="/Images/Icons/Mana.png" class="w-[25px] h-[25px] me-1"/> {{ char_stats.mana }} / {{ char_stats.maxmana }} (+{{ char_stats.manaregen }})</div>
+            <div class="flex m-2"><img src="/Images/Icons/Mana.png" class="w-[25px] h-[25px] me-1"/> {{  Number(char_stats.mana).toFixed(2) }} / {{  Number(char_stats.maxmana).toFixed(2) }} (+{{  Number(char_stats.manaregen).toFixed(2) }})</div>
             <div class="flex m-2"><img src="/Images/Icons/Attack.png" class="w-[25px] h-[25px] me-1"/> {{ char_stats.mindamage }} - {{ char_stats.maxdamage }}</div>
             <div class="flex m-2"><img src="/Images/Icons/Ability.png" class="w-[25px] h-[25px] me-1"/> {{ char_stats.ability }}</div>
             <div class="flex m-2"><img src="/Images/Icons/Speed.png" class="w-[25px] h-[25px] me-1"/> {{ char_stats.speed }}</div>
@@ -242,9 +279,9 @@ onMounted(()=>{
             <div class="flex m-2">
                 <ValuePopGreen v-model:show="enemy_popup" v-model:value="enemy_poptext" v-model:color="enemy_popcolor"/>
                 <img src="/Images/Icons/Health.png" class="w-[25px] h-[25px] me-1"/> 
-                {{ enemy?.health }} / {{ enemy?.maxhealth }} (+{{ enemy?.healthregen }})
+                {{  Number(enemy?.health).toFixed(2) }} / {{  Number(enemy?.maxhealth).toFixed(2) }} (+{{  Number(enemy?.healthregen).toFixed(2) }})
             </div>
-            <div class="flex m-2"><img src="/Images/Icons/Mana.png" class="w-[25px] h-[25px] me-1"/> {{ enemy?.mana }} / {{ enemy?.maxmana }} (+{{ enemy?.manaregen }})</div>
+            <div class="flex m-2"><img src="/Images/Icons/Mana.png" class="w-[25px] h-[25px] me-1"/> {{  Number(enemy?.mana).toFixed(2) }} / {{  Number(enemy?.maxmana).toFixed(2) }} (+{{ enemy?.manaregen }})</div>
             <div class="flex m-2"><img src="/Images/Icons/Attack.png" class="w-[25px] h-[25px] me-1"/> {{ enemy?.mindamage }} - {{ enemy?.maxdamage }}</div>
             <div class="flex m-2"><img src="/Images/Icons/Ability.png" class="w-[25px] h-[25px] me-1"/> {{ enemy?.ability }}</div>
             <div class="flex m-2"><img src="/Images/Icons/Speed.png" class="w-[25px] h-[25px] me-1"/> {{ enemy?.speed }}</div>

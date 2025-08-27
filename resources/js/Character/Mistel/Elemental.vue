@@ -1,6 +1,4 @@
 <script setup>
-import { nextTick } from 'vue';
-
 
 const resources = defineModel("resources");
 const stats = defineModel("stats");
@@ -9,22 +7,15 @@ const level = defineModel("level");
 const animation = defineModel("animation");
 const duration = defineModel("duration");
 const emits = defineEmits(['play']);
-const activate = async () => {
-    if(stats.value.mana < 2) return;
-    stats.value.mana -= 2;
-    let damage = (Math.floor(Math.random() * (stats.value.ability * 5)));
-    let gain = damage + (Number(stats.value.ability) * 5);
+const activate = () => {
+     if(stats.value.mana < 5) return;
+    stats.value.mana -= 5;
 
-    await nextTick();
-
+    let damage = stats.value.ability * 8;
     animation.value = "/Images/Animations/Mistel/purple_slash_1.gif";
     duration.value = 0.8;
-
-    stats.value.health = Number(stats.value.health) + Number(gain);
-    if(stats.value.health >= stats.value.maxhealth){
-        stats.value.health = stats.value.maxhealth;
-    }
-
+    enemy.value.health -= damage;
+    
     stats.value.buffs.forEach(buff => {
         if(buff.type == 'ability'){
             buff.duration -= 1;
@@ -46,7 +37,7 @@ const activate = async () => {
             }
         }
     });
-    
+
     emits('play');
 }
 const start = (place = null)=>{
@@ -54,19 +45,19 @@ const start = (place = null)=>{
 }
 
 const description = ()=>{
-    return `Heal Self for ${stats.value.ability * 5} + (0 - ${stats.value.ability * 5}).`;
+    return `Deal ${(stats.value.ability) * 8} damage to the enemy.`;
 }
 
-defineExpose({start});
+defineExpose({start, description});
 
 </script>
 <template>
     <v-card @click="activate" class="max-h-[400px] max-w-[300px] mx-1" style="height: 50vh; width: 25vw; background-color: aliceblue;">
         <v-card-title>Action</v-card-title>
-        <v-card-subtitle>2 Mana</v-card-subtitle>
+        <v-card-subtitle>5 Mana</v-card-subtitle>
         
         <v-card-text class="text-center items-center flex h-full flex-col gap-5">
-            <b class="text-2xl">Heal</b>
+            <b class="text-2xl">Elemental Attack</b>
             <p class="text-lg">
                  <span class="flex items-center mx-2 gap-1">
                     {{ description() }}
